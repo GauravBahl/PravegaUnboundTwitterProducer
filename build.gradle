@@ -1,0 +1,78 @@
+plugins {
+	id 'org.springframework.boot' version '2.4.5'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+}
+
+group = 'com.unbound.pravega'
+version = '0.0.1-SNAPSHOT'
+//sourceCompatibility = '11'
+
+ext {
+	junitVersion = '4.11'
+	commonsCLIVersion = '1.4'
+	pravegaVersion = '0.9.0'
+	pravegaKeycloakVersion = '0.9.0'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'com.h2database:h2'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testCompile "junit:junit:${junitVersion}"
+	compile "io.pravega:pravega-client:${pravegaVersion}",
+			"io.pravega:pravega-common:${pravegaVersion}",
+			"io.pravega:pravega-keycloak-client:${pravegaKeycloakVersion}",
+			"commons-cli:commons-cli:${commonsCLIVersion}"
+	compile "org.slf4j:slf4j-api:1.7.14"
+	compile "ch.qos.logback:logback-classic:1.1.7"
+	implementation group: 'org.twitter4j', name: 'twitter4j-core', version: '4.0.7'
+	implementation group: 'com.twitter', name: 'hbc', version: '2.2.0', ext: 'pom'
+	implementation group: 'com.twitter', name: 'hbc-core', version: '2.2.0'
+
+
+}
+
+test {
+	useJUnitPlatform()
+}
+subprojects {
+	if (file("src/main/java").isDirectory()) {
+		apply plugin: 'java'
+		dependencies {
+			compileOnly 'org.projectlombok:lombok:' + lombokVersion
+			testCompileOnly 'org.projectlombok:lombok:' + lombokVersion
+			annotationProcessor 'org.projectlombok:lombok:' + lombokVersion
+			testAnnotationProcessor 'org.projectlombok:lombok:' + lombokVersion
+		}
+	}
+	repositories {
+		mavenLocal()
+		jcenter()
+		mavenCentral()
+		maven {
+			url "https://repository.apache.org/snapshots"
+		}
+		maven {
+			url "https://oss.jfrog.org/jfrog-dependencies"
+		}
+	}
+	plugins.withType(org.gradle.api.plugins.JavaPlugin) {
+		group "io.pravega"
+		version samplesVersion
+	}
+}
